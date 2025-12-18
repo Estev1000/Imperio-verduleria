@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Imperio Verdulería</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f8f9fa;
+            padding: 20px;
+        }
+
+        .container {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            background-color: #f8f9fa;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .tab-content {
+            padding: 20px;
+            border: 1px solid #dee2e6;
+            border-top: none;
+            border-radius: 0 0 5px 5px;
+        }
+
+        .product-card {
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 15px;
+            background-color: white;
+        }
+
+        .cart-item {
+            border-bottom: 1px solid #dee2e6;
+            padding: 10px 0;
+        }
+
+        .btn-primary {
+            background-color: #4CAF50;
+            border-color: #4CAF50;
+        }
+
+        .btn-primary:hover {
+            background-color: #45a049;
+            border-color: #45a049;
+        }
+
+        .btn-danger {
+            background-color: #e74c3c;
+            border-color: #e74c3c;
+        }
+
+        .btn-danger:hover {
+            background-color: #c0392b;
+            border-color: #c0392b;
+        }
+
+        .ticket {
+            background-color: white;
+            padding: 20px;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .ticket-header {
+            text-align: center;
+            border-bottom: 1px dashed #dee2e6;
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+        }
+
+        .ticket-items {
+            margin-bottom: 15px;
+        }
+
+        .ticket-total {
+            border-top: 1px dashed #dee2e6;
+            padding-top: 10px;
+            text-align: right;
+            font-weight: bold;
+        }
+
+        .ticket-footer {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 0.9em;
+        }
+
+        /* Ofertas rápidas: botones grandes y visibles */
+        #ofertas-rapidas .oferta-btn {
+            padding: 12px 16px;
+            font-size: 1.05rem;
+            font-weight: 600;
+            border-width: 2px;
+        }
+
+        #ofertas-rapidas .oferta-del {
+            vertical-align: top;
+            line-height: 1.1;
+            padding: 6px 8px;
+        }
+
+        /* Móvil: botones de ofertas a ancho completo y más grandes */
+        @media (max-width: 576px) {
+            #ofertas-rapidas .oferta-btn {
+                width: 100%;
+                font-size: 1.15rem;
+                padding: 14px 18px;
+            }
+
+            .input-group-text {
+                font-size: 1rem;
+            }
+
+            #efectivo-input {
+                font-size: 1.1rem;
+                height: 44px;
+            }
+        }
+
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+
+            .ticket,
+            .ticket * {
+                visibility: visible;
+            }
+
+            .ticket {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+            }
+
+            .no-print {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="Logo.png" alt="Logo Imperio Verdulería" style="max-height: 100px; margin-bottom: 15px;">
+            <h1>Imperio Verdulería</h1>
+            <p>Ventas rápidas y simples para verdulerías</p>
+        </div>
+
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="inventario-tab" data-bs-toggle="tab" data-bs-target="#inventario"
+                    type="button" role="tab" aria-controls="inventario" aria-selected="true">Inventario</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="ventas-tab" data-bs-toggle="tab" data-bs-target="#ventas" type="button"
+                    role="tab" aria-controls="ventas" aria-selected="false">Ventas</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="reportes-tab" data-bs-toggle="tab" data-bs-target="#reportes" type="button"
+                    role="tab" aria-controls="reportes" aria-selected="false">Reportes</button>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="myTabContent">
+            <!-- Pestaña de Inventario -->
+            <div class="tab-pane fade show active" id="inventario" role="tabpanel" aria-labelledby="inventario-tab">
+                <div class="row">
+                    <div class="col-md-4">
+                        <h3>Agregar Producto</h3>
+                        <form id="producto-form">
+                            <div class="mb-3">
+                                <label for="nombre" class="form-label">Nombre del Producto</label>
+                                <input type="text" class="form-control" id="nombre" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="categoria" class="form-label">Categoría</label>
+                                <input type="text" class="form-control" id="categoria" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="precio" class="form-label">Precio</label>
+                                <input type="number" class="form-control" id="precio" min="0" step="0.01" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="cantidad" class="form-label">Cantidad</label>
+                                <input type="number" class="form-control" id="cantidad" min="0" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Agregar</button>
+                        </form>
+                    </div>
+                    <div class="col-md-8">
+                        <h3>Inventario Actual</h3>
+                        <input type="text" class="form-control mb-3" id="buscar-inventario"
+                            placeholder="Buscar producto...">
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Producto</th>
+                                        <th>Categoría</th>
+                                        <th>Precio</th>
+                                        <th>Cantidad</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="inventario-tabla">
+                                    <!-- Se llenará dinámicamente -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pestaña de Ventas -->
+            <div class="tab-pane fade" id="ventas" role="tabpanel" aria-labelledby="ventas-tab">
+                <div class="row">
+                    <div class="col-md-8">
+                        <h3>Ofertas rápidas</h3>
+                        <div class="row g-2 align-items-center mb-2">
+                            <div class="col-auto">
+                                <label for="oferta-cant" class="col-form-label">x Cantidad</label>
+                            </div>
+                            <div class="col-auto" style="width: 90px;">
+                                <input type="number" class="form-control" id="oferta-cant" min="1" step="1" value="1" />
+                            </div>
+                            <div class="col-auto form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="solo-ofertas">
+                                <label class="form-check-label" for="solo-ofertas">Solo ofertas</label>
+                            </div>
+                        </div>
+                        <form id="oferta-form" class="row g-2 mb-3">
+                            <div class="col-md-3">
+                                <input type="text" class="form-control" id="oferta-nombre" placeholder="Producto"
+                                    required>
+                            </div>
+                            <div class="col-md-3">
+                                <input type="text" class="form-control" id="oferta-detalle"
+                                    placeholder="Detalle (ej: 1.5kg)" required>
+                            </div>
+                            <div class="col-md-3">
+                                <input type="number" class="form-control" id="oferta-precio" placeholder="Precio"
+                                    min="0" step="0.01" required>
+                            </div>
+                            <div class="col-md-3">
+                                <select id="oferta-emoji" class="form-select" title="Emoji">
+                                    <option value="">Emoji</option>
+                                    <option value="🥔">🥔 Papa</option>
+                                    <option value="🥕">🥕 Zanahoria</option>
+                                    <option value="🍅">🍅 Tomate</option>
+                                    <option value="🧅">🧅 Cebolla</option>
+                                    <option value="🥬">🥬 Acelga/Verdes</option>
+                                    <option value="🥒">🥒 Pepino</option>
+                                    <option value="🌶️">🌶️ Ají</option>
+                                    <option value="🥦">🥦 Brócoli</option>
+                                    <option value="🍌">🍌 Banana</option>
+                                    <option value="🍎">🍎 Manzana</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3 d-grid">
+                                <button type="submit" class="btn btn-success">Crear Oferta</button>
+                            </div>
+                        </form>
+                        <div class="mb-3" id="ofertas-rapidas">
+                            <!-- Botones de ofertas -->
+                        </div>
+                        <hr>
+                        <h3>Productos Disponibles</h3>
+                        <input type="text" class="form-control mb-3" id="buscar-productos"
+                            placeholder="Buscar producto...">
+                        <div class="row" id="productos-venta">
+                            <!-- Se llenará dinámicamente -->
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <h3>Carrito</h3>
+                        <div id="carrito">
+                            <!-- Se llenará dinámicamente -->
+                        </div>
+                        <div class="d-grid gap-2 mt-3">
+                            <button class="btn btn-primary" id="finalizar-venta">Finalizar Venta</button>
+                            <button class="btn btn-danger" id="vaciar-carrito">Vaciar Carrito</button>
+                            <button class="btn btn-secondary" id="venta-libre">Venta Libre</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal para el ticket -->
+                <div class="modal fade" id="ticketModal" tabindex="-1" aria-labelledby="ticketModalLabel"
+                    aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="ticketModalLabel">Ticket de Venta</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="ticket" id="ticket-para-imprimir">
+                                    <!-- Se llenará dinámicamente -->
+                                </div>
+                            </div>
+                            <div class="modal-footer no-print">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                                <button type="button" class="btn btn-primary" id="imprimir-ticket">Imprimir</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pestaña de Reportes -->
+            <div class="tab-pane fade" id="reportes" role="tabpanel" aria-labelledby="reportes-tab">
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h5 class="card-title">Total Ventas</h5>
+                                <p class="card-text" id="total-ventas">$0.00</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h5 class="card-title">Productos Vendidos</h5>
+                                <p class="card-text" id="productos-vendidos">0</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h5 class="card-title">Transacciones</h5>
+                                <p class="card-text" id="total-transacciones">0</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <h3>Gestión de Datos</h3>
+                        <button id="exportar-datos" class="btn btn-primary me-2">Exportar Datos</button>
+                        <label for="importar-archivo" class="btn btn-secondary me-2">Seleccionar Archivo</label>
+                        <input type="file" id="importar-archivo" class="d-none" accept=".json">
+                        <button id="importar-datos" class="btn btn-primary">Importar Datos</button>
+                    </div>
+                </div>
+
+                <h3>Historial de Ventas</h3>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Total</th>
+                                <th>Productos</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historial-ventas">
+                            <!-- Se llenará dinámicamente -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Ofertas rápidas
+        let ofertasRapidas = JSON.parse(localStorage.getItem('ofertas_rapidas') || '[]');
+
+        function guardarOfertasRapidas() {
+            localStorage.setItem('ofertas_rapidas', JSON.stringify(ofertasRapidas));
+        }
+
+        function getEmojiForNombre(nombre) {
+            const n = (nombre || '').toLowerCase();
+            if (/(papa|patata)/.test(n)) return '🥔';
+            if (/(zanahoria)/.test(n)) return '🥕';
+            if (/(tomate)/.test(n)) return '🍅';
+            if (/(cebolla)/.test(n)) return '🧅';
+            if (/(acelga|lechuga|verde|espinaca)/.test(n)) return '🥬';
+            if (/(pepino)/.test(n)) return '🥒';
+            if (/(aji|ají|chile|picante)/.test(n)) return '🌶️';
+            if (/(brocoli|brócoli)/.test(n)) return '🥦';
+            if (/(banana|plátano|platano)/.test(n)) return '🍌';
+            if (/(manzana|apple)/.test(n)) return '🍎';
+            if (/(pera)/.test(n)) return '🍐';
+            if (/(naranja)/.test(n)) return '🍊';
+            return '🛒';
+        }
+
+        function renderizarOfertasRapidas() {
+            const cont = document.getElementById('ofertas-rapidas');
+            cont.innerHTML = '';
+            if (ofertasRapidas.length === 0) {
+                cont.innerHTML = '<span class="text-muted">No hay ofertas rápidas</span>';
+                return;
+            }
+            ofertasRapidas.forEach((oferta, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'btn btn-success oferta-btn me-2 mb-2';
+                const emoji = oferta.emoji || getEmojiForNombre(oferta.nombre);
+                btn.textContent = `${emoji} ${oferta.nombre} ${oferta.detalle} - $${oferta.precio}`;
+                btn.onclick = function () {
+                    // Throttle: evitar múltiples inserciones por doble toque o pulsación prolongada
+                    if (btn.dataset.lock === '1') return;
+                    btn.dataset.lock = '1';
+                    setTimeout(() => { btn.dataset.lock = '0'; }, 250);
+                    // Agregar al carrito como venta rápida
+                    let cantidadRapida = parseFloat((document.getElementById('oferta-cant') && document.getElementById('oferta-cant').value) || '1');
+                    if (isNaN(cantidadRapida) || cantidadRapida <= 0) cantidadRapida = 1;
+                    carrito.push({
+                        key: 'oferta_' + idx + '_' + Date.now(),
+                        nombre: `${oferta.nombre} (${oferta.detalle})`,
+                        precio: oferta.precio,
+                        cantidad: cantidadRapida
+                    });
+                    actualizarCarrito();
+                };
+                cont.appendChild(btn);
+                // Botón eliminar oferta
+                const delBtn = document.createElement('button');
+                delBtn.className = 'btn btn-sm btn-danger oferta-del ms-1';
+                delBtn.textContent = 'X';
+                delBtn.onclick = function () {
+                    if (confirm('¿Eliminar esta oferta?')) {
+                        ofertasRapidas.splice(idx, 1);
+                        guardarOfertasRapidas();
+                        renderizarOfertasRapidas();
+                    }
+                };
+                cont.appendChild(delBtn);
+            });
+        }
+
+        document.getElementById('oferta-form').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const nombre = document.getElementById('oferta-nombre').value.trim();
+            const detalle = document.getElementById('oferta-detalle').value.trim();
+            const precio = parseFloat(document.getElementById('oferta-precio').value);
+            const emojiSel = (document.getElementById('oferta-emoji') && document.getElementById('oferta-emoji').value) || '';
+            if (!nombre || !detalle || isNaN(precio)) {
+                alert('Complete todos los campos de la oferta');
+                return;
+            }
+            ofertasRapidas.push({ nombre, detalle, precio, emoji: emojiSel });
+            guardarOfertasRapidas();
+            renderizarOfertasRapidas();
+            this.reset();
+        });
+
+        // Venta libre
+        document.getElementById('venta-libre').addEventListener('click', function () {
+            const nombre = prompt('Nombre del producto:');
+            if (!nombre) return;
+            const detalle = prompt('Detalle/cantidad (opcional):') || '';
+            let precio = prompt('Precio:');
+            if (!precio) return;
+            precio = parseFloat(precio);
+            if (isNaN(precio)) {
+                alert('Precio inválido');
+                return;
+            }
+            let cantidad = prompt('Cantidad:');
+            if (!cantidad) cantidad = 1;
+            cantidad = parseFloat(cantidad);
+            if (isNaN(cantidad) || cantidad <= 0) cantidad = 1;
+            carrito.push({
+                key: 'libre_' + Date.now(),
+                nombre: nombre + (detalle ? ' (' + detalle + ')' : ''),
+                precio: precio,
+                cantidad: cantidad
+            });
+            actualizarCarrito();
+        });
+
+        // Renderizar ofertas rápidas al cargar
+        renderizarOfertasRapidas();
+        // Variables globales
+        let inventario = {};
+        let carrito = [];
+        let detalles_ventas = [];
+        let total_ventas = 0;
+
+        // Cargar datos al iniciar
+        window.onload = function () {
+            cargarDatos();
+            actualizarInventarioTabla();
+            actualizarProductosVenta();
+            actualizarCarrito();
+            actualizarReportes();
+        };
+
+        // Función para cargar datos del almacenamiento local
+        function cargarDatos() {
+            // Migración de clave: de 'datos_panaderia' a 'datos_verduleria'
+            let datosGuardados = localStorage.getItem('datos_verduleria');
+            if (!datosGuardados) {
+                const oldKey = localStorage.getItem('datos_panaderia');
+                if (oldKey) {
+                    datosGuardados = oldKey;
+                    // Guardar bajo la nueva clave para futuras cargas
+                    localStorage.setItem('datos_verduleria', oldKey);
+                }
+            }
+            if (datosGuardados) {
+                const datos = JSON.parse(datosGuardados);
+                inventario = datos.inventario || {};
+                total_ventas = datos.total_ventas || 0;
+                detalles_ventas = datos.detalles_ventas || [];
+            }
+        }
+
+        // Función para guardar datos en el almacenamiento local
+        function guardarDatos() {
+            const datos = {
+                inventario: inventario,
+                total_ventas: total_ventas,
+                detalles_ventas: detalles_ventas
+            };
+            localStorage.setItem('datos_verduleria', JSON.stringify(datos));
+        }
+
+        // Funciones para la pestaña de Inventario
+        document.getElementById('producto-form').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const nombre = document.getElementById('nombre').value.trim();
+            const categoria = document.getElementById('categoria').value.trim();
+            const precio = parseFloat(document.getElementById('precio').value);
+            const cantidad = parseInt(document.getElementById('cantidad').value);
+
+            if (!nombre || !categoria || isNaN(precio) || isNaN(cantidad)) {
+                alert('Por favor complete todos los campos correctamente');
+                return;
+            }
+
+            const productoKey = nombre.toLowerCase();
+            inventario[productoKey] = {
+                nombre: nombre,
+                categoria: categoria,
+                precio: precio,
+                cantidad: cantidad
+            };
+
+            guardarDatos();
+            actualizarInventarioTabla();
+            actualizarProductosVenta();
+
+            // Limpiar formulario
+            document.getElementById('producto-form').reset();
+            alert('Producto agregado correctamente');
+        });
+
+        function actualizarInventarioTabla() {
+            const tabla = document.getElementById('inventario-tabla');
+            tabla.innerHTML = '';
+
+            const busqueda = document.getElementById('buscar-inventario').value.toLowerCase();
+
+            for (const key in inventario) {
+                const producto = inventario[key];
+
+                // Filtrar por búsqueda
+                if (busqueda && !producto.nombre.toLowerCase().includes(busqueda) &&
+                    !producto.categoria.toLowerCase().includes(busqueda)) {
+                    continue;
+                }
+
+                const fila = document.createElement('tr');
+                fila.innerHTML = `
+                    <td>${producto.nombre}</td>
+                    <td>${producto.categoria}</td>
+                    <td>$${producto.precio.toFixed(2)}</td>
+                    <td>${producto.cantidad}</td>
+                    <td>
+                        <button class="btn btn-sm btn-danger eliminar-producto" data-key="${key}">Eliminar</button>
+                    </td>
+                `;
+                tabla.appendChild(fila);
+            }
+
+            // Agregar eventos a los botones de eliminar
+            document.querySelectorAll('.eliminar-producto').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    const key = this.getAttribute('data-key');
+                    if (confirm(`¿Está seguro de eliminar ${inventario[key].nombre}?`)) {
+                        delete inventario[key];
+                        guardarDatos();
+                        actualizarInventarioTabla();
+                        actualizarProductosVenta();
+                    }
+                });
+            });
+        }
+
+        document.getElementById('buscar-inventario').addEventListener('input', actualizarInventarioTabla);
+
+        // Funciones para la pestaña de Ventas
+        function actualizarProductosVenta() {
+            const contenedor = document.getElementById('productos-venta');
+            contenedor.innerHTML = '';
+
+            const busqueda = document.getElementById('buscar-productos').value.toLowerCase();
+
+            for (const key in inventario) {
+                const producto = inventario[key];
+
+                // Filtrar por búsqueda y disponibilidad
+                if ((busqueda && !producto.nombre.toLowerCase().includes(busqueda) &&
+                    !producto.categoria.toLowerCase().includes(busqueda)) ||
+                    producto.cantidad <= 0) {
+                    continue;
+                }
+
+                const card = document.createElement('div');
+                card.className = 'col-md-4 mb-3';
+                card.innerHTML = `
+                    <div class="product-card">
+                        <h5>${producto.nombre}</h5>
+                        <p><strong>Categoría:</strong> ${producto.categoria}</p>
+                        <p><strong>Precio:</strong> $${producto.precio.toFixed(2)}</p>
+                        <p><strong>Disponible:</strong> ${producto.cantidad}</p>
+                        <button class="btn btn-primary agregar-carrito" data-key="${key}">
+                            Agregar al Carrito
+                        </button>
+                    </div>
+                `;
+                contenedor.appendChild(card);
+            }
+
+            // Agregar eventos a los botones
+            document.querySelectorAll('.agregar-carrito').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    const key = this.getAttribute('data-key');
+                    const producto = inventario[key];
+
+                    // Verificar si ya está en el carrito
+                    const itemExistente = carrito.find(item => item.key === key);
+
+                    if (itemExistente) {
+                        if (itemExistente.cantidad < producto.cantidad) {
+                            itemExistente.cantidad++;
+                        } else {
+                            alert('No hay más unidades disponibles');
+                            return;
+                        }
+                    } else {
+                        carrito.push({
+                            key: key,
+                            nombre: producto.nombre,
+                            precio: producto.precio,
+                            cantidad: 1
+                        });
+                    }
+
+                    actualizarCarrito();
+                });
+            });
+        }
+
+        document.getElementById('buscar-productos').addEventListener('input', actualizarProductosVenta);
+
+        // Modo Solo Ofertas: ocultar productos
+        document.getElementById('solo-ofertas').addEventListener('change', function () {
+            const ocultar = this.checked;
+            const titulo = Array.from(document.querySelectorAll('#ventas h3')).find(h => h.textContent.includes('Productos Disponibles'));
+            const buscador = document.getElementById('buscar-productos');
+            const grilla = document.getElementById('productos-venta');
+            if (titulo) titulo.style.display = ocultar ? 'none' : '';
+            if (buscador) buscador.style.display = ocultar ? 'none' : '';
+            if (grilla) grilla.style.display = ocultar ? 'none' : '';
+        });
+
+        function actualizarCarrito() {
+            const contenedor = document.getElementById('carrito');
+            contenedor.innerHTML = '';
+
+            if (carrito.length === 0) {
+                contenedor.innerHTML = '<p>El carrito está vacío</p>';
+                return;
+            }
+
+            let total = 0;
+
+            carrito.forEach((item, index) => {
+                const subtotal = item.precio * item.cantidad;
+                total += subtotal;
+
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'cart-item';
+                itemDiv.innerHTML = `
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6>${item.nombre}</h6>
+                            <small>$${item.precio.toFixed(2)} x ${item.cantidad}</small>
+                        </div>
+                        <div>
+                            <span class="badge bg-primary">$${subtotal.toFixed(2)}</span>
+                            <button class="btn btn-sm btn-danger ms-2 eliminar-item" data-index="${index}">X</button>
+                        </div>
+                    </div>
+                `;
+                contenedor.appendChild(itemDiv);
+            });
+
+            // Agregar total + efectivo + vuelto
+            const totalDiv = document.createElement('div');
+            totalDiv.className = 'mt-3';
+            totalDiv.innerHTML = `
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div class="h5 m-0">Total:</div>
+                    <div class="h5 m-0" id="total-a-cobrar">$${total.toFixed(2)}</div>
+                </div>
+                <div class="input-group input-group-sm mb-2">
+                    <span class="input-group-text">Efectivo</span>
+                    <input type="number" inputmode="decimal" step="0.01" min="0" class="form-control" id="efectivo-input" placeholder="0.00" />
+                </div>
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>Vuelto</div>
+                    <div class="fw-bold" id="vuelto-valor">$0.00</div>
+                </div>
+            `;
+            contenedor.appendChild(totalDiv);
+
+            // Agregar eventos a los botones de eliminar
+            document.querySelectorAll('.eliminar-item').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    const index = parseInt(this.getAttribute('data-index'));
+                    carrito.splice(index, 1);
+                    actualizarCarrito();
+                });
+            });
+
+            // Calcular vuelto al escribir efectivo y permitir Enter para finalizar
+            const efectivoInput = document.getElementById('efectivo-input');
+            const vueltoSpan = document.getElementById('vuelto-valor');
+            const finalizarBtn = document.getElementById('finalizar-venta');
+
+            function actualizarVuelto() {
+                const efectivo = parseFloat(efectivoInput.value || '0');
+                const vuelto = (isNaN(efectivo) ? 0 : efectivo) - total;
+                vueltoSpan.textContent = `$${(vuelto >= 0 ? vuelto : 0).toFixed(2)}`;
+            }
+
+            efectivoInput.addEventListener('input', actualizarVuelto);
+            efectivoInput.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    finalizarBtn.click();
+                }
+            });
+
+            // Focus para rapidez
+            setTimeout(() => {
+                efectivoInput.focus();
+                efectivoInput.select();
+            }, 0);
+        }
+
+        document.getElementById('vaciar-carrito').addEventListener('click', function () {
+            if (carrito.length > 0 && confirm('¿Está seguro de vaciar el carrito?')) {
+                carrito = [];
+                actualizarCarrito();
+            }
+        });
+
+        document.getElementById('finalizar-venta').addEventListener('click', function () {
+            if (carrito.length === 0) {
+                alert('El carrito está vacío');
+                return;
+            }
+
+            // Calcular total
+            let total = 0;
+            carrito.forEach(item => {
+                total += item.precio * item.cantidad;
+            });
+
+            // Leer efectivo y validar
+            const efectivo = parseFloat((document.getElementById('efectivo-input') && document.getElementById('efectivo-input').value) || '0');
+            if (isNaN(efectivo) || efectivo < total) {
+                alert('Ingrese un monto de efectivo válido (igual o mayor al total)');
+                const inp = document.getElementById('efectivo-input');
+                if (inp) { inp.focus(); inp.select(); }
+                return;
+            }
+            const vuelto = efectivo - total;
+
+            // Actualizar inventario
+            carrito.forEach(item => {
+                if (inventario[item.key]) {
+                    inventario[item.key].cantidad -= item.cantidad;
+                }
+            });
+
+            // Registrar venta
+            const fecha = new Date().toLocaleString();
+            const venta = {
+                fecha: fecha,
+                total: total,
+                efectivo: efectivo,
+                vuelto: vuelto,
+                items: carrito.map(item => ({
+                    producto: item.nombre,
+                    cantidad: item.cantidad,
+                    precio: item.precio
+                }))
+            };
+
+            detalles_ventas.push(venta);
+            total_ventas += total;
+
+            // Generar ticket
+            generarTicket(venta);
+
+            // Guardar datos
+            guardarDatos();
+
+            // Actualizar interfaz
+            carrito = [];
+            actualizarCarrito();
+            actualizarInventarioTabla();
+            actualizarProductosVenta();
+            actualizarReportes();
+
+            // Mostrar modal
+            const ticketModal = new bootstrap.Modal(document.getElementById('ticketModal'));
+            ticketModal.show();
+        });
+
+        function generarTicket(venta) {
+            const ticketDiv = document.getElementById('ticket-para-imprimir');
+
+            let itemsHtml = '';
+            venta.items.forEach(item => {
+                const subtotal = item.cantidad * item.precio;
+                itemsHtml += `
+                    <div class="d-flex justify-content-between mb-1">
+                        <span>${item.producto} x${item.cantidad}</span>
+                        <span>$${subtotal.toFixed(2)}</span>
+                    </div>
+                `;
+            });
+
+            ticketDiv.innerHTML = `
+                <div class="ticket-header">
+                    <h4>Imperio Verdulería</h4>
+                    <p>Ticket de Venta</p>
+                    <p>${venta.fecha}</p>
+                </div>
+                <div class="ticket-items">
+                    ${itemsHtml}
+                </div>
+                <div class="ticket-total">
+                    <p>Total: $${venta.total.toFixed(2)}</p>
+                    ${typeof venta.efectivo === 'number' ? `<p>Efectivo: $${venta.efectivo.toFixed(2)}</p>` : ''}
+                    ${typeof venta.vuelto === 'number' ? `<p>Vuelto: $${venta.vuelto.toFixed(2)}</p>` : ''}
+                </div>
+                <div class="ticket-footer">
+                    <p>¡Gracias por su compra!</p>
+                </div>
+            `;
+        }
+
+        document.getElementById('imprimir-ticket').addEventListener('click', function () {
+            window.print();
+        });
+
+        // Funciones para la pestaña de Reportes
+        function actualizarReportes() {
+            document.getElementById('total-ventas').textContent = `$${total_ventas.toFixed(2)}`;
+
+            let totalProductos = 0;
+            detalles_ventas.forEach(venta => {
+                venta.items.forEach(item => {
+                    totalProductos += item.cantidad;
+                });
+            });
+
+            document.getElementById('productos-vendidos').textContent = totalProductos;
+            document.getElementById('total-transacciones').textContent = detalles_ventas.length;
+
+            // Actualizar historial
+            const historial = document.getElementById('historial-ventas');
+            historial.innerHTML = '';
+
+            detalles_ventas.forEach((venta, index) => {
+                const fila = document.createElement('tr');
+
+                let productosTexto = venta.items.map(item =>
+                    `${item.producto} (${item.cantidad})`
+                ).join(', ');
+
+                if (productosTexto.length > 50) {
+                    productosTexto = productosTexto.substring(0, 47) + '...';
+                }
+
+                fila.innerHTML = `
+                    <td>${venta.fecha}</td>
+                    <td>$${venta.total.toFixed(2)}</td>
+                    <td>${productosTexto}</td>
+                    <td>
+                        <!-- Botón Ver Ticket eliminado por no funcionar correctamente -->
+                    </td>
+                `;
+                historial.appendChild(fila);
+            });
+
+            // Código para el botón Ver Ticket eliminado por no funcionar correctamente
+        }
+
+
+        // Funciones para exportar e importar datos
+        document.getElementById('exportar-datos').addEventListener('click', function () {
+            const datos = {
+                inventario: inventario,
+                total_ventas: total_ventas,
+                detalles_ventas: detalles_ventas,
+                fecha_exportacion: new Date().toLocaleString()
+            };
+
+            const blob = new Blob([JSON.stringify(datos, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'datos_verduleria_' + new Date().toISOString().slice(0, 10) + '.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        });
+
+        document.getElementById('importar-datos').addEventListener('click', function () {
+            const fileInput = document.getElementById('importar-archivo');
+            const file = fileInput.files[0];
+
+            if (!file) {
+                alert('Por favor seleccione un archivo para importar');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                try {
+                    const datos = JSON.parse(e.target.result);
+
+                    if (!datos.inventario || !datos.detalles_ventas) {
+                        throw new Error('Formato de archivo inválido');
+                    }
+
+                    if (confirm('¿Está seguro de importar estos datos? Se reemplazarán todos los datos actuales.')) {
+                        inventario = datos.inventario;
+                        total_ventas = datos.total_ventas || 0;
+                        detalles_ventas = datos.detalles_ventas;
+
+                        guardarDatos();
+                        actualizarInventarioTabla();
+                        actualizarProductosVenta();
+                        actualizarReportes();
+
+                        alert('Datos importados correctamente');
+                        fileInput.value = '';
+                    }
+                } catch (error) {
+                    alert('Error al importar datos: ' + error.message);
+                }
+            };
+            reader.readAsText(file);
+        });
+    </script>
+</body>
+
+</html>
